@@ -1,12 +1,12 @@
 const Engineer = require("../lib/engineer.js")
 
 describe("engineer class", () => {
-    describe("getRole method", () => {
+    describe("getGHUsername method", () => {
       it("diplay role", () => {
-        const engineer = new Engineer("John Smith", "001", "j.smith@email.com", "Janitor");
-        var role = engineer.getRole();
+        const engineer = new Engineer("John Smith","JSMITHGH", "001", "j.smith@email.com", "Janitor");
+        var github = engineer.getGHUsername();
                
-        expect(role).toBe("Engineer");
+        expect(github).toBe("JSMITHGH");
       });
 
     })
