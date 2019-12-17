@@ -10,4 +10,16 @@ describe("gets the school that the user erntered from the prompt", () => {
       });
 
     })
+});
+
+describe("intern class", () => {
+    describe("getRole method", () => {
+      it("diplay role", () => {
+        const intern = new Intern("John Smith", "001", "j.smith@email.com", "Intern");
+        var role = intern.getRole();
+               
+        expect(role).toBe("Intern");
+      });
+
+    })
 })
