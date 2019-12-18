@@ -11,7 +11,8 @@ inquirer.prompt([
     {
         type: "input",
         message: "Name your team",
-        name: "teamName"
+        name: "teamName",
+        default: "Justin Team"
     },
     {
         type: "list",
@@ -22,12 +23,14 @@ inquirer.prompt([
     {
         message: "Enter your name:",
         name: "managerName",
-        when: (answers) => answers.role === 'Manager'
+        when: (answers) => answers.role === 'Manager',
+        default: "Justin Abreu"
     },
     {
         message: "Enter your office number:",
         name: "officeNumber",
-        when: (answers) => answers.role === 'Manager'
+        when: (answers) => answers.role === 'Manager',
+        default: "001"    
     },
     {
         type: "list",
@@ -63,5 +66,27 @@ inquirer.prompt([
     }
 ])
 .then(answers => {
+    let ID = 1
     console.log(answers)
+    const managerAnswers = [answers.managerName, answers.officeNumber];
+    //const engineerAnswers = [];
+    //const internanswers = [];
+    function createEmail(name) {
+        name = answers.managerName
+        var nameLowerCase = name.toLowerCase();
+        var nameSplit = nameLowerCase.split(' ');
+        var nameCreate = nameSplit[0].slice(0,1);
+        var email = (nameCreate + '.' + nameSplit[nameSplit.length -1]) + "@email.com";
+        
+        return email;
+    };    
+    
+    const newManager = new Manager(
+    managerAnswers[0],
+    ID++,
+    createEmail(),
+    answers.role,   
+    managerAnswers[1]    
+    )
+    console.log(newManager)
 })
