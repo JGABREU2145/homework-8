@@ -13,6 +13,10 @@ const teamData = {
     interns: []
 };
 
+var ID = 0;
+
+
+
 function userMenu() {
     inquirer.prompt([
     {
@@ -25,14 +29,16 @@ function userMenu() {
     .then ((answers) => {
         if (answers.choice === '1. Name team'){
             nameTeam();
-            userMenu();
+            //userMenu();
         }
         else if (answers.choice === '2. Add an Employee') {
             addEmployee();
-            userMenu();
+            //userMenu();
         }
         else if (answers.choice === '3. Publish team page'){
             if (checkTeamData()) {
+                console.log(checkTeamData);
+                console.log(teamData)
                 generateHTML()
             }
             else {
@@ -42,7 +48,7 @@ function userMenu() {
 
     });
 
-};
+}
 
 function nameTeam() {
     inquirer.prompt([
@@ -55,11 +61,15 @@ function nameTeam() {
     ])
     .then((answers) => {
         teamData.teamName = answers.teamName;
-    })
+        (console.log(teamData.teamName))
+    })    
+    .then(() => {
+        userMenu();
+    }) 
 };
 
 
-function addEmployee() {}
+function addEmployee() {
     inquirer.prompt([
     {
         type: "list",
@@ -69,94 +79,157 @@ function addEmployee() {}
     }
     ])
     .then((answers) => {
-        if (answers.choices === '1.Manager(required)') {
+        if (answers.choice === '1.Manager(required)') {
             promptManagerQuestions()
         }
-        else if (answers.choices === '2. Engineer') {
+        else if (answers.choice === '2. Engineer') {
             promptEngineerQuestions()
         }
-        else (answers.choices === '3. Intern') 
+        else if(answers.choice === '3. Intern') {
             promptInternQuestions();
-        
+        }
     });
 
+}
 
 function promptManagerQuestions() {
     inquirer.prompt([
         {
+            type: "input",
+            message: "Enter role",
+            name: "role",
+            default: "Manager"    
+        },
+        {
+            type: "input",
             message: "Enter your name:",
-            name: "managerName",           
+            name: "name",           
             default: "Justin Abreu"
         },
         {
+            type: "input",
             message: "Enter your office number:",
             name: "officeNumber",
             default: "001"    
         }
     ])
     .then((answers) => {
+        function createEmail(name) {
+            name = answers.name;
+            var nameLowerCase = name.toLowerCase();
+            var nameSplit = nameLowerCase.split(' ');
+            var nameCreate = nameSplit[0].slice(0,1);
+            var email = (nameCreate + '.' + nameSplit[nameSplit.length -1]) + "@email.com";
+            
+            return email;
+        };
         teamData.manager = new Manager(
-                managerAnswers[0],
+                answers.name[0],
                 ID++,
                 createEmail(),
                 answers.role,   
-                managerAnswers[1]    
+                answers.officeNumber   
                 )
-                console.log(newManager)
-        })     
+                console.log(teamData.manager)
+        }) 
+        .then(() => {
+            userMenu();
+        }) 
 };
 
 function promptEngineerQuestions() {
     inquirer.prompt([
         {
+            type: "input",
+            message: "Enter your role:",
+            name: "role",           
+            default: "Engineer"
+        },
+        {
+            type: "input",
             message: "Enter your name:",
-            name: "engineerName",           
+            name: "name",           
             default: "Justin Abreu"
         },
         {
+            type: "input",
             message: "Enter your Github username:",
             name: "ghUsername",
             default: "JGABREU2145"    
         }
     ])
     .then((answers) => {
+        function createEmail(name) {
+            name = answers.name;
+            var nameLowerCase = name.toLowerCase();
+            var nameSplit = nameLowerCase.split(' ');
+            var nameCreate = nameSplit[0].slice(0,1);
+            var email = (nameCreate + '.' + nameSplit[nameSplit.length -1]) + "@email.com";
+            
+            return email;
+        };
+
         teamData.engineer = new Engineer(
-                engineerAnswers[0],
+                answers.name,
                 ID++,
                 createEmail(),
                 answers.role,   
-                engineerAnswers[1]    
+                answers.ghUsername    
                 )
-                console.log(newEngineer)
-        });
+                console.log(teamData.engineer)
+        })
+        .then(() => {
+            userMenu();
+        }) 
 };
 
 function promptInternQuestions() {
     inquirer.prompt([
         {
+            type: "input",
+            message: "Enter your role:",
+            name: "role",           
+            default: "Intern"
+        },
+        {
+            type: "input",
             message: "Enter your name:",
-            name: "internName",           
+            name: "name",           
             default: "Justin Abreu"
         },
         {
+            type: "input",
             message: "Enter the name of the school that you attend:",
             name: "school",
             default: "School University"    
         }
     ])
     .then((answers) => {
+        function createEmail(name) {
+            name = answers.name;
+            var nameLowerCase = name.toLowerCase();
+            var nameSplit = nameLowerCase.split(' ');
+            var nameCreate = nameSplit[0].slice(0,1);
+            var email = (nameCreate + '.' + nameSplit[nameSplit.length -1]) + "@email.com";
+            
+            return email;
+        };
+
         teamData.intern = new Intern(
-                internAnswers[0],
+                answers.name,
                 ID++,
                 createEmail(),
                 answers.role,   
-                internAnswers[1]    
+                answers.school    
                 )
-                console.log(newIntern)
-        }) 
+                console.log(teamData.intern)
+        })
+        .then(() => {
+            userMenu();
+        })  
 };
 
-function checkATeamData() {
+function checkTeamData() {
 	// only requirements for generating the html is that we must have a team name and at least one manager
 	if (teamData.teamName && teamData.teamName.length > 0 && teamData.manager !== null && (teamData.interns.length > 0 || teamData.engineers.length > 0)) {
 		return true;
@@ -169,6 +242,8 @@ function checkATeamData() {
 function generateHTML() {
 	// use teamData to generate your html
 }
+
+
 
 userMenu();
 
