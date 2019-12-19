@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/JGABREU2145/homework-8#readme",
   "dependencies": {
+    "fs": "0.0.1-security",
     "inquirer": "^7.0.0"
   },
   "devDependencies": {

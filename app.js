@@ -5,6 +5,9 @@ const Manager = require("./lib/manager.js");
 
 const inquirer = require("inquirer");
 const fs = require("fs");
+const util = require("util")
+
+const writeFileAsync = util.promisify(fs.writeFile);
 
 const teamData = {
     teamName: null,
@@ -12,13 +15,21 @@ const teamData = {
     engineers: [],
     interns: []
 };
-
-var ID = 0;
+console.log(teamData + "This is from line 18")
+var ID = 1;
 
 
 
 function userMenu() {
-    inquirer.prompt([
+
+    let teamData = {
+        teamName: null,
+        manager: null,
+        engineers: [],
+        interns: []
+    };
+
+    return inquirer.prompt([
     {
         type: "list",
         message: "What would you like to do?",
@@ -28,27 +39,24 @@ function userMenu() {
     ])
     .then ((answers) => {
         if (answers.choice === '1. Name team'){
-            nameTeam();
-            //userMenu();
+            nameTeam();            
         }
         else if (answers.choice === '2. Add an Employee') {
-            addEmployee();
-            //userMenu();
+            addEmployee();            
         }
         else if (answers.choice === '3. Publish team page'){
-            if (checkTeamData()) {
-                console.log(checkTeamData);
-                console.log(teamData)
-                generateHTML()
+            if (checkTeamData() === false) {                
+                console.log("Manager and Team Name Required!")
+                userMenu();                
             }
             else {
-                userMenu();
+                generateHTML(teamData)
             }
         }
 
     });
-
 }
+
 
 function nameTeam() {
     inquirer.prompt([
@@ -60,8 +68,8 @@ function nameTeam() {
         }
     ])
     .then((answers) => {
-        teamData.teamName = answers.teamName;
-        (console.log(teamData.teamName))
+        teamData.teamName =(answers.teamName);     
+        console.log(teamData.teamName)   
     })    
     .then(() => {
         userMenu();
@@ -124,13 +132,13 @@ function promptManagerQuestions() {
             return email;
         };
         teamData.manager = new Manager(
-                answers.name[0],
-                ID++,
-                createEmail(),
-                answers.role,   
-                answers.officeNumber   
-                )
-                console.log(teamData.manager)
+            answers.name,
+            ID++,
+            createEmail(),
+            answers.role,   
+            answers.officeNumber   
+            )
+        console.log(teamData +  "THis is from mangers")
         }) 
         .then(() => {
             userMenu();
@@ -149,7 +157,7 @@ function promptEngineerQuestions() {
             type: "input",
             message: "Enter your name:",
             name: "name",           
-            default: "Justin Abreu"
+            default: "John Smite"
         },
         {
             type: "input",
@@ -169,14 +177,15 @@ function promptEngineerQuestions() {
             return email;
         };
 
-        teamData.engineer = new Engineer(
-                answers.name,
-                ID++,
-                createEmail(),
-                answers.role,   
-                answers.ghUsername    
-                )
-                console.log(teamData.engineer)
+        teamData.engineers.push(new Engineer(
+            answers.name,
+            ID++,
+            createEmail(),
+            answers.role,   
+            answers.ghUsername    
+            )
+        )
+            console.log(teamData +  "THis is from engineers")
         })
         .then(() => {
             userMenu();
@@ -195,7 +204,7 @@ function promptInternQuestions() {
             type: "input",
             message: "Enter your name:",
             name: "name",           
-            default: "Justin Abreu"
+            default: "Sean Anders"
         },
         {
             type: "input",
@@ -215,14 +224,15 @@ function promptInternQuestions() {
             return email;
         };
 
-        teamData.intern = new Intern(
-                answers.name,
-                ID++,
-                createEmail(),
-                answers.role,   
-                answers.school    
-                )
-                console.log(teamData.intern)
+        teamData.interns.push( new Intern(
+            answers.name,
+            ID++,
+            createEmail(),
+            answers.role,   
+            answers.school    
+            )
+        )
+            console.log(teamData +  "THis is from interns")
         })
         .then(() => {
             userMenu();
@@ -236,98 +246,106 @@ function checkTeamData() {
 	} 
 	else {
 		return false;
-	}
-}
+    }
+    
+};
 
-function generateHTML() {
-	// use teamData to generate your html
-}
 
+console.log(teamData +  "THis is from line 244")
+
+function generateHTML(teamData) {
+    console.log(teamData + "THis is from line 246");
+    const html = `
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="javascript" href="../lib/employee.js">
+    <link rel="javascript" href="../lib/manager.js">
+    <link rel="javascript" href="../lib/intern.js">
+    <link rel="javascript" href="../lib/engineer.js">
+    <link rel="mainpage" type="text/html" href="main.html">
+    <link rel="engineerpage" type="text/html" href="engineer.html">
+    <link rel="internpage" type="text/html" href="intern.html">
+    <link rel="managerpage" type="text/html" href="manager.html">
+    <title>Your Team Viewer</title>
+</head>
+<body>
+     <div class="jumbotron">
+        <h1 class="display-3">${teamData.teamName}</h1>
+        <p class="lead">View and manage your team </p>
+        <hr class="my-2">
+        <div style="padding-top: 20px;">
+            <div class="nav justify-content-center">
+                <li class="nav-item bg-primary">
+                    <a class="nav-link text-white" href="main.html" target="_self">Team</a>
+                </li>
+                <li class="nav-item bg-primary" >
+                  <a class="nav-link text-white" href="manager.html" target="_self">Managers</a>
+                </li>
+                <li class="nav-item bg-primary">
+                  <a class="nav-link text-white" href="engineer.html" target="_self">Engineers</a>
+                </li>
+                <li class="nav-item bg-primary">
+                    <a class="nav-link text-white" href="intern.html" target="_self">Interns</a>
+                </li>                
+            </div>
+        </div>
+        
+    </div>
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-3">
+        <div class="col mb-4">
+            <div class="card h-100">
+            <img src="../images/person-placeholder.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">${teamData.manager.Manager.name}</h5>
+                <p class="card-text">${teamData.manager.Manager.role}</p>
+                <p class="card-text">${teamData.manager.Manager.email}</p>
+                <p class="card-text">${teamData.manager.Manager.id}</p>
+                <p class="card-text">${teamData.manager.Manager.officeNumber}</p>
+            </div>
+            </div>
+        </div>
+        <div class="col mb-4">
+            <div class="card h-100">
+            <img src="../images/person-placeholder.jpg" class="card-img-top" alt="Person placeholer image">
+            <div class="card-body">
+            <h5 class="card-title">${teamData.engineers[0].Engineer.name}</h5>
+            <p class="card-text">${teamData.engineers[0].Engineer.role}</p>
+            <p class="card-text">${teamData.engineers[0].Engineer.email}</p>
+            <p class="card-text">${teamData.engineers[0].Engineer.id}</p>
+            <p class="card-text">${teamData.engineers[0].Engineer.GHUsername}</p>
+            </div>
+            </div>
+        </div>
+        <div class="col mb-4">
+            <div class="card h-100">
+            <img src="../images/person-placeholder.jpg" class="card-img-top" alt="Person placeholer image">
+            <div class="card-body">
+            <h5 class="card-title">${teamData.interns[0].intern.name}</h5>
+            <p class="card-text">${teamData.interns[0].intern.role}</p>
+            <p class="card-text">${teamData.interns[0].intern.email}</p>
+            <p class="card-text">${teamData.interns[0].intern.id}</p>
+            <p class="card-text">${teamData.interns[0].intern.school}</p></div>
+            </div>
+        </div>        
+    </div>    
+</div>
+</body>
+</html>
+    `;
+    return writeFileAsync("main.html", html)
+    .then(function() {
+        console.log("Successfully wrote to main.html")
+    })
+    .catch(function(err) {
+        console.log(err);
+    });
+};
 
 
 userMenu();
-
-    /*{
-        message: "Enter your name:",
-        name: "managerName",
-        when: (answers) => answers.role === 'Manager',
-        default: "Justin Abreu"
-    },
-    {
-        message: "Enter your office number:",
-        name: "officeNumber",
-        when: (answers) => answers.role === 'Manager',
-        default: "001"    
-    },
-    {
-        type: "list",
-        message: "Please enter your role in the team:",
-        choices: ['Manager', 'Engineer', 'Intern'],
-        name: "role"
-    },   
-    {
-        message: "Enter your name:",
-        name: "engineerName",
-        when: (answers) => answers.role === 'Engineer'
-    },  
-    {
-        message: "Please enter github username:",
-        name: "githubUsername",
-        when: (answers) => answers.role === 'Engineer'
-    },     
-    {
-        type: "list",
-        message: "Please enter your role in the team:",
-        choices: ['Manager', 'Engineer', 'Intern'],
-        name: "role"
-    },   
-    {
-        message: "Enter your name:",
-        name: "internName",
-        when: (answers) => answers.role === 'Intern'
-    },  
-    {
-        message: "Please enter the name of the school you attend:",
-        name: "school",
-        when: (answers) => answers.role === 'Intern'
-    }
-])
-.then(answers => {
-    let ID = 1
-    console.log(answers)
-    const managerAnswers = [answers.managerName, answers.officeNumber];
-    //const engineerAnswers = [];
-    //const internanswers = [];
-    function createEmail(name) {
-        name = answers.managerName
-        var nameLowerCase = name.toLowerCase();
-        var nameSplit = nameLowerCase.split(' ');
-        var nameCreate = nameSplit[0].slice(0,1);
-        var email = (nameCreate + '.' + nameSplit[nameSplit.length -1]) + "@email.com";
-        
-        return email;
-    };    
-    
-    const newManager = new Manager(
-    managerAnswers[0],
-    ID++,
-    createEmail(),
-    answers.role,   
-    managerAnswers[1]    
-    )
-    console.log(newManager)
-})
-
-
-
-
-
-/*function createEmail(name) {
-    name = answers.managerName
-    var nameLowerCase = name.toLowerCase();
-    var nameSplit = nameLowerCase.split(' ');
-    var nameCreate = nameSplit[0].slice(0,1);
-    var email = (nameCreate + '.' + nameSplit[nameSplit.length -1]) + "@email.com";
-    
-    return email;
-};*/
