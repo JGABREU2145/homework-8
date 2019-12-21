@@ -337,7 +337,4 @@ function generateHTML() {
     });
 };
 
-
-
-
 userMenu();

@@ -34,13 +34,15 @@ function userMenu() {
             //userMenu();
         }
         else if (answers.choice === '3. Publish team page'){
-            if (checkTeamData() === false) {                
-                console.log(teamData)
+            if (checkTeamData()) {                
+                console.log(teamData);
+                console.log("This is from line 39");
                 userMenu();
             }
             else {
-                console.log(teamData)
-                generateHTML(teamData)
+                console.log("This is from line 43");
+                console.log(teamData);
+               return generateHTML(teamData);
                 
             }
         }
@@ -54,13 +56,13 @@ function nameTeam() {
         {
             type: "input",
             message: "Name your team",
-            name: "teamName",
+            name: "team",
             default: "Justin Team"
         }
     ])
     .then((answers) => {
-        teamData.teamName = answers.teamName;
-        (console.log(teamData.teamName))
+        teamData.teamName = answers.team;
+        (console.log(teamData))
     })    
     .then(() => {
         userMenu();
@@ -128,7 +130,7 @@ function promptManagerQuestions() {
                 answers.role,   
                 answers.officeNumber   
                 )
-                console.log(teamData.manager)
+                console.log(teamData.manager.name)
         }) 
         .then(() => {
             userMenu();
@@ -174,7 +176,7 @@ function promptEngineerQuestions() {
                 answers.role,   
                 answers.ghUsername    
                 )
-                console.log(teamData)
+                console.log(teamData.engineers.name)
         })
         .then(() => {
             userMenu();
@@ -220,7 +222,8 @@ function promptInternQuestions() {
                 answers.role,   
                 answers.school    
                 )
-                console.log(teamData)
+                console.log("This is from line 223");
+                console.log(teamData);
         })
         .then(() => {
             userMenu();
@@ -237,9 +240,8 @@ function checkTeamData() {
 	}
 };
 
-};
-
-function HTML(teamData) {    
+function HTML(teamData) {  
+   var print =   
      `
     <!DOCTYPE html>
 <html lang="en">
@@ -286,12 +288,12 @@ function HTML(teamData) {
         <div class="col mb-4">
             <div class="card h-100">
             <img src="../images/person-placeholder.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">${teamData.manager.Manager.name}</h5>
-                <p class="card-text">${teamData.manager.Manager.role}</p>
-                <p class="card-text">${teamData.manager.Manager.email}</p>
-                <p class="card-text">${teamData.manager.Manager.id}</p>
-                <p class="card-text">${teamData.manager.Manager.officeNumber}</p>
+            <div class="card-body">                
+                <h5 class="card-title">${teamData.manager.name}</h5>
+                <p class="card-text">${teamData.manager.role}</p>
+                <p class="card-text">${teamData.manager.email}</p>
+                <p class="card-text">${teamData.manager.id}</p>
+                <p class="card-text">${teamData.manager.officeNumber}</p>
             </div>
             </div>
         </div>
@@ -299,11 +301,11 @@ function HTML(teamData) {
             <div class="card h-100">
             <img src="../images/person-placeholder.jpg" class="card-img-top" alt="Person placeholer image">
             <div class="card-body">
-            <h5 class="card-title">${teamData.engineers[0].Engineer.name}</h5>
-            <p class="card-text">${teamData.engineers[0].Engineer.role}</p>
-            <p class="card-text">${teamData.engineers[0].Engineer.email}</p>
-            <p class="card-text">${teamData.engineers[0].Engineer.id}</p>
-            <p class="card-text">${teamData.engineers[0].Engineer.GHUsername}</p>
+            <h5 class="card-title">${teamData.engineers.name}</h5>
+            <p class="card-text">${teamData.engineers.role}</p>
+            <p class="card-text">${teamData.engineers.email}</p>
+            <p class="card-text">${teamData.engineers.id}</p>
+            <p class="card-text">${teamData.engineers.GHUsername}</p>
             </div>
             </div>
         </div>
@@ -311,30 +313,36 @@ function HTML(teamData) {
             <div class="card h-100">
             <img src="../images/person-placeholder.jpg" class="card-img-top" alt="Person placeholer image">
             <div class="card-body">
-            <h5 class="card-title">${teamData.interns[0].intern.name}</h5>
-            <p class="card-text">${teamData.interns[0].intern.role}</p>
-            <p class="card-text">${teamData.interns[0].intern.email}</p>
-            <p class="card-text">${teamData.interns[0].intern.id}</p>
-            <p class="card-text">${teamData.interns[0].intern.school}</p></div>
+            <h5 class="card-title">${teamData.interns.name}</h5>
+            <p class="card-text">${teamData.interns.role}</p>
+            <p class="card-text">${teamData.interns.email}</p>
+            <p class="card-text">${teamData.interns.id}</p>
+            <p class="card-text">${teamData.interns.school}</p></div>
             </div>
         </div>        
     </div>    
 </div>
 </body>
 </html>
-    `
+    `;
+    return print
 }
 
-function generateHTML() {
+function generateHTML(teamData) {
+    console.log(`This is from line 330`)
+    console.log(teamData)
     const html = HTML(teamData)
 
-    return fs.writeFile("./templates/main.html", html)
-    .then(function() {
-        console.log("Successfully wrote to main.html")
-    })
-    .catch(function(err) {
-        console.log(err);
-    });
+    return fs.writeFile("./templates/main.html", html, function(){});
+    
+    // .then(function() {
+    //     console.log("Successfully wrote to main.html")
+    // })
+    // .catch(function(err) {
+    //     console.log(err);
+    // });
+};
+
 };
 
 userMenu();
